@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,9 +40,15 @@ func TestStreamLimit(t *testing.T) {
 
 func TestStreamSorted(t *testing.T) {
 	stream := New(5, 3, 1, 4, 2)
-	sorted := Sorted(stream)
+	sorted := Sorted(stream, ASC)
 	collected := Collect(sorted)
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, collected)
+}
+func TestStreamReverseSorted(t *testing.T) {
+	stream := New(5, 3, 1, 4, 2)
+	sorted := Sorted(stream, DESC)
+	collected := Collect(sorted)
+	assert.Equal(t, []int{5, 4, 3, 2, 1}, collected)
 }
 
 func TestStreamReduce(t *testing.T) {
@@ -77,6 +84,14 @@ func TestStreamForEach(t *testing.T) {
 	})
 	assert.Equal(t, 15, sum)
 }
+
+func TestStreamForEach2(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	ForEach(stream, func(i int) {
+		fmt.Println(i)
+	})
+}
+
 func TestStreamCollectToSet(t *testing.T) {
 	stream := New(1, 2, 3, 3, 2)
 	collected := CollectToSet(stream)

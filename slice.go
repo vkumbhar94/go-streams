@@ -93,7 +93,14 @@ func Limit[T any](s *Stream[T], i int) *Stream[T] {
 	}
 }
 
-func Sorted[T cmp.Ordered](s *Stream[T]) *Stream[T] {
+type SortOrder int
+
+const (
+	ASC SortOrder = iota
+	DESC
+)
+
+func Sorted[T cmp.Ordered](s *Stream[T], order SortOrder) *Stream[T] {
 	ch := make(chan T)
 	return &Stream[T]{
 		data: ch,
@@ -102,6 +109,9 @@ func Sorted[T cmp.Ordered](s *Stream[T]) *Stream[T] {
 			defer close(ch)
 			result := Collect(s)
 			sort.Slice(result, func(i, j int) bool {
+				if order == DESC {
+					return result[i] > result[j]
+				}
 				return result[i] < result[j]
 			})
 			for _, r := range result {

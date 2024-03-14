@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"testing"
@@ -91,7 +92,7 @@ func TestMStreamKeys(t *testing.T) {
 		"xyz": 4,
 		"ijk": 3,
 	})
-	collected := Collect(Sorted(stream))
+	collected := Collect(Sorted(stream, ASC))
 	assert.Equal(t, []string{"abc", "ijk", "xyz"}, collected)
 }
 
@@ -101,7 +102,7 @@ func TestMStreamValues(t *testing.T) {
 		"xyz": 4,
 		"ijk": 3,
 	})
-	collected := Collect(Sorted(stream))
+	collected := Collect(Sorted(stream, ASC))
 	assert.Equal(t, []int64{2, 3, 4}, collected)
 }
 
@@ -193,4 +194,26 @@ func TestMStreamSCollectToSet(t *testing.T) {
 			MapEntry[string, int64]{"xyz", 4}:  {},
 		},
 		collected)
+}
+
+func TestMStreamForEachString(t *testing.T) {
+	stream := MNew(map[string]int64{
+		"abc": 2,
+		"xyz": 4,
+		"ijk": 3,
+	})
+	ForEach(stream, func(e MapEntry[string, int64]) {
+		fmt.Println(e)
+	})
+}
+
+func TestMStreamForEachKeyValue(t *testing.T) {
+	stream := MNew(map[string]int64{
+		"abc": 2,
+		"xyz": 4,
+		"ijk": 3,
+	})
+	ForEach(stream, func(e MapEntry[string, int64]) {
+		fmt.Println(e.Key(), e.Value())
+	})
 }
