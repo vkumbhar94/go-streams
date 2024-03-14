@@ -1,5 +1,18 @@
-# Go streams APIs
-Yet another go streams api using generics
+# Java equivalent stream APIs in go
+
+- This library provides a set of APIs to perform operations on a collection of elements similar to Java Stream APIs.
+
+- Similar to Java, intermediate operations are lazy and terminal operations are eager i.e. intermediate operations are not performed until a terminal operation is called.
+
+- when intermediate operations are performed, a new stream is returned, and the original stream is not modified.
+
+- Intermediate operations that can short circuit will halt once the condition is met, and the rest of the elements will not be processed. To avoid go routine leaks, the stream is cleared after obtaining the result.
+
+- The library make use of go routines to perform operations in parallel.
+- The library is designed to be used with a collection of elements, and not with a channel.
+- The library is not thread safe.
+- The library is not designed to be used with infinite streams.
+- Stream can only be used once, and it is not reusable.
 
 
 ## Usage
