@@ -135,3 +135,178 @@ func ForEach[T any](stream *Stream[T], f func(i T)) {
 		f(t)
 	}
 }
+
+// Distinct returns a new Stream with distinct elements from the input Stream.
+// Stateful Intermediate Operation.
+func Distinct[T comparable](s *Stream[T]) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			seen := make(map[T]struct{})
+			for t := range s.data {
+				if _, ok := seen[t]; !ok {
+					seen[t] = struct{}{}
+					ch <- t
+				}
+			}
+		},
+	}
+}
+
+func AllMatch[T any](s *Stream[T], f func(T) bool) bool {
+	s.Run()
+	for t := range s.data {
+		if !f(t) {
+			go drain(s.data)
+			return false
+		}
+	}
+	return true
+}
+
+func AnyMatch[T any](s *Stream[T], f func(T) bool) bool {
+	s.Run()
+	for t := range s.data {
+		if f(t) {
+			go drain(s.data)
+			return true
+		}
+	}
+	return false
+}
+
+func NoneMatch[T any](s *Stream[T], f func(T) bool) bool {
+	s.Run()
+	for t := range s.data {
+		if f(t) {
+			go drain(s.data)
+			return false
+		}
+	}
+	return true
+}
+
+func DropWhile[T any](s *Stream[T], f func(T) bool) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			dropping := true
+			for t := range s.data {
+				if dropping && f(t) {
+					continue
+				}
+				dropping = false
+				ch <- t
+			}
+		},
+	}
+}
+
+func TakeWhile[T any](s *Stream[T], f func(T) bool) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			func() {
+				defer close(ch)
+				for t := range s.data {
+					if f(t) {
+						ch <- t
+					} else {
+						break
+					}
+				}
+			}()
+			go drain(s.data)
+		},
+	}
+}
+
+func Peek[T any](s *Stream[T], f func(T)) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			for t := range s.data {
+				f(t)
+				ch <- t
+			}
+		},
+	}
+}
+
+func FindFirst[T any](s *Stream[T]) *T {
+	s.Run()
+	for t := range s.data {
+		go drain(s.data)
+		return &t
+	}
+	return nil
+}
+
+func FlatMap[T, R any](s *Stream[T], f func(T) *Stream[R]) *Stream[R] {
+	ch := make(chan R)
+	return &Stream[R]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			for t := range s.data {
+				is := f(t)
+				is.Run()
+				for r := range is.data {
+					ch <- r
+				}
+			}
+		},
+	}
+}
+
+func Min[T cmp.Ordered](s *Stream[T]) *T {
+	s.Run()
+	var minVal *T
+	for t := range s.data {
+		if minVal == nil || t < *minVal {
+			minVal = &t
+		}
+	}
+	return minVal
+}
+
+func Max[T cmp.Ordered](s *Stream[T]) *T {
+	s.Run()
+	var maxVal *T
+	for t := range s.data {
+		if maxVal == nil || t > *maxVal {
+			maxVal = &t
+		}
+	}
+	return maxVal
+}
+
+func Skip[T any](s *Stream[T], n int) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			for t := range s.data {
+				if n > 0 {
+					n--
+					continue
+				}
+				ch <- t
+			}
+		},
+	}
+}

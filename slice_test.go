@@ -97,3 +97,120 @@ func TestStreamCollectToSet(t *testing.T) {
 	collected := CollectToSet(stream)
 	assert.Equal(t, map[int]struct{}{1: {}, 2: {}, 3: {}}, collected)
 }
+
+func TestStreamDistinct(t *testing.T) {
+	stream := New(1, 2, 3, 3, 2)
+	collected := Collect(Distinct(stream))
+	assert.Equal(t, []int{1, 2, 3}, collected)
+}
+
+func TestAllMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	allMatch := AllMatch(stream, func(i int) bool {
+		return i < 10
+	})
+	assert.True(t, allMatch)
+}
+
+func TestNotAllMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	allMatch := AllMatch(stream, func(i int) bool {
+		return i < 5
+	})
+	assert.False(t, allMatch)
+}
+
+func TestAnyMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	anyMatch := AnyMatch(stream, func(i int) bool {
+		return i == 3
+	})
+	assert.True(t, anyMatch)
+}
+
+func TestNotAnyMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	anyMatch := AnyMatch(stream, func(i int) bool {
+		return i == 10
+	})
+	assert.False(t, anyMatch)
+}
+
+func TestDropWhile(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	collected := Collect(DropWhile(stream, func(i int) bool {
+		return i < 3
+	}))
+	assert.Equal(t, []int{3, 4, 5}, collected)
+}
+
+func TestTakeWhile(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	collected := Collect(TakeWhile(stream, func(i int) bool {
+		return i < 3
+	}))
+	assert.Equal(t, []int{1, 2}, collected)
+}
+
+func TestNoneMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	noneMatch := NoneMatch(stream, func(i int) bool {
+		return i == 10
+	})
+	assert.True(t, noneMatch)
+}
+
+func TestFalseNoneMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	noneMatch := NoneMatch(stream, func(i int) bool {
+		return i == 2
+	})
+	assert.False(t, noneMatch)
+}
+
+func TestPeek(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	collected := Collect(Peek(stream, func(i int) {
+		fmt.Println(i)
+	}))
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, collected)
+}
+
+func TestFindFirst(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	first := FindFirst(stream)
+	assert.Equal(t, 1, *first)
+}
+
+func TestFindFirstEmpty(t *testing.T) {
+	stream := New[int]()
+	first := FindFirst(stream)
+	assert.Nil(t, first)
+}
+
+func TestFlatmap(t *testing.T) {
+	stream := New([]int{1, 2, 3}, []int{4, 5}, []int{6, 7, 8, 9})
+	flatMapped := FlatMap(stream, func(i []int) *Stream[int] {
+		return New(i...)
+	})
+	collected := Collect(flatMapped)
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, collected)
+}
+
+func TestMin(t *testing.T) {
+	stream := New(5, 3, 1, 4, 2)
+	minVal := Min(stream)
+	assert.Equal(t, 1, *minVal)
+}
+
+func TestMax(t *testing.T) {
+	stream := New(5, 3, 1, 4, 2)
+	maxVal := Max(stream)
+	assert.Equal(t, 5, *maxVal)
+}
+
+func TestSkip(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	collected := Collect(Skip(stream, 2))
+	assert.Equal(t, []int{3, 4, 5}, collected)
+}
