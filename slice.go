@@ -179,14 +179,7 @@ func AnyMatch[T any](s *Stream[T], f func(T) bool) bool {
 }
 
 func NoneMatch[T any](s *Stream[T], f func(T) bool) bool {
-	s.Run()
-	for t := range s.data {
-		if f(t) {
-			go drain(s.data)
-			return false
-		}
-	}
-	return true
+	return !AnyMatch(s, f)
 }
 
 func DropWhile[T any](s *Stream[T], f func(T) bool) *Stream[T] {
