@@ -251,3 +251,19 @@ func (s *Stream[T]) Collect() []T {
 		return append(ans, i)
 	})
 }
+
+type UnaryMapFun[T any] func(T) T
+
+func (s *Stream[T]) Map(mapper UnaryMapFun[T]) *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			for t := range s.data {
+				ch <- mapper(t)
+			}
+		},
+	}
+}

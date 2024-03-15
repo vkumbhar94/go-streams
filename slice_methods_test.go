@@ -168,3 +168,12 @@ func TestMethodIfAllMatchElse(t *testing.T) {
 	})
 	assert.Equal(t, 30, sum)
 }
+
+func TestMethodMap(t *testing.T) {
+	collected := New([]int{1, 2, 3, 4, 5}...).Map(func(i int) int {
+		return i * 2
+	}).Collect()
+	if !reflect.DeepEqual(collected, []int{2, 4, 6, 8, 10}) {
+		t.Errorf("Expected [2, 4, 6, 8, 10] but got %v", collected)
+	}
+}
