@@ -24,3 +24,40 @@ func (s *ComparableStream[T]) CollectToSet() map[T]struct{} {
 	}
 	return ans
 }
+
+func (s *ComparableStream[T]) Distinct() *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			seen := make(map[T]struct{})
+			for t := range s.data {
+				if _, ok := seen[t]; !ok {
+					seen[t] = struct{}{}
+					ch <- t
+				}
+			}
+		},
+	}
+}
+func (s *ComparableStream[T]) DistinctAndThen() *ComparableStream[T] {
+	ch := make(chan T)
+	return &ComparableStream[T]{
+		Stream[T]{
+			data: ch,
+			run: func() {
+				s.Run()
+				defer close(ch)
+				seen := make(map[T]struct{})
+				for t := range s.data {
+					if _, ok := seen[t]; !ok {
+						seen[t] = struct{}{}
+						ch <- t
+					}
+				}
+			},
+		},
+	}
+}
