@@ -46,3 +46,44 @@ func (s *OrderedStream[T]) Sorted(order SortOrder) *Stream[T] {
 		},
 	}
 }
+
+type MOrderedStream[K cmp.Ordered, V any] struct {
+	Stream[MapEntry[K, V]]
+}
+
+func ToMOrderedStream[K cmp.Ordered, V any](s *Stream[MapEntry[K, V]]) *MOrderedStream[K, V] {
+	return &MOrderedStream[K, V]{
+		Stream: Stream[MapEntry[K, V]]{
+			data: s.data,
+			run:  s.run,
+			ran:  atomic.Bool{},
+		},
+	}
+}
+
+func (s *MOrderedStream[K, V]) Sorted(order SortOrder) *Stream[MapEntry[K, V]] {
+	ch := make(chan MapEntry[K, V])
+	return &Stream[MapEntry[K, V]]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			var data []MapEntry[K, V]
+			for t := range s.data {
+				data = append(data, t)
+			}
+			if order == DESC {
+				sort.Slice(data, func(i, j int) bool {
+					return data[i].K > data[j].K
+				})
+			} else {
+				sort.Slice(data, func(i, j int) bool {
+					return data[i].K < data[j].K
+				})
+			}
+			for _, t := range data {
+				ch <- t
+			}
+		},
+	}
+}

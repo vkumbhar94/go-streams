@@ -220,3 +220,28 @@ func TestMethodCount(t *testing.T) {
 		t.Errorf("Expected 5 but got %v", count)
 	}
 }
+
+func TestMSorted(t *testing.T) {
+	collected := ToMOrderedStream(MNew(map[string]int64{
+		"abc": 2,
+		"xyz": 4,
+		"ijk": 3,
+	})).Sorted(ASC).Collect()
+	assert.True(t, reflect.DeepEqual(collected, []MapEntry[string, int64]{
+		{"abc", 2},
+		{"ijk", 3},
+		{"xyz", 4},
+	}))
+}
+func TestMSortedDesc(t *testing.T) {
+	collected := ToMOrderedStream(MNew(map[string]int64{
+		"abc": 2,
+		"xyz": 4,
+		"ijk": 3,
+	})).Sorted(DESC).Collect()
+	assert.True(t, reflect.DeepEqual(collected, []MapEntry[string, int64]{
+		{"xyz", 4},
+		{"ijk", 3},
+		{"abc", 2},
+	}))
+}
