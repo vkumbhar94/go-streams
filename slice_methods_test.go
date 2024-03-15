@@ -177,3 +177,46 @@ func TestMethodMap(t *testing.T) {
 		t.Errorf("Expected [2, 4, 6, 8, 10] but got %v", collected)
 	}
 }
+
+func TestMethodCollectToSet(t *testing.T) {
+	collected := ToComparableStream(New([]int{1, 2, 3, 4, 5}...)).CollectToSet()
+	if !reflect.DeepEqual(collected, map[int]struct{}{1: {}, 2: {}, 3: {}, 4: {}, 5: {}}) {
+		t.Errorf("Expected [1, 2, 3, 4, 5] but got %v", collected)
+	}
+}
+
+func TestMethodSorted(t *testing.T) {
+	collected := ToOrderedStream(New([]int{5, 3, 1, 4, 2}...)).Sorted(ASC).Collect()
+	if !reflect.DeepEqual(collected, []int{1, 2, 3, 4, 5}) {
+		t.Errorf("Expected [1, 2, 3, 4, 5] but got %v", collected)
+	}
+}
+func TestMethodSortedDesc(t *testing.T) {
+	collected := ToOrderedStream(New([]int{5, 3, 1, 4, 2}...)).Sorted(DESC).Collect()
+	if !reflect.DeepEqual(collected, []int{5, 4, 3, 2, 1}) {
+		t.Errorf("Expected [1, 2, 3, 4, 5] but got %v", collected)
+	}
+}
+
+func TestMethodReduce(t *testing.T) {
+	reduced := New([]int{1, 2, 3, 4, 5}...).Reduce(0, func(ans, i int) int {
+		return ans + i
+	})
+	if reduced != 15 {
+		t.Errorf("Expected 15 but got %v", reduced)
+	}
+}
+
+func TestMethodSum(t *testing.T) {
+	sum := ToNumberStream(New([]int{1, 2, 3, 4, 5}...)).Sum()
+	if sum != 15 {
+		t.Errorf("Expected 15 but got %v", sum)
+	}
+}
+
+func TestMethodCount(t *testing.T) {
+	count := New([]int{1, 2, 3, 4, 5}...).Count()
+	if count != 5 {
+		t.Errorf("Expected 5 but got %v", count)
+	}
+}
