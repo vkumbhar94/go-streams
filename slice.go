@@ -167,6 +167,10 @@ func AllMatch[T any](s *Stream[T], f func(T) bool) bool {
 	return true
 }
 
+func NotAllMatch[T any](s *Stream[T], f func(T) bool) bool {
+	return !AllMatch(s, f)
+}
+
 func AnyMatch[T any](s *Stream[T], f func(T) bool) bool {
 	s.Run()
 	for t := range s.data {
@@ -301,5 +305,24 @@ func Skip[T any](s *Stream[T], n int) *Stream[T] {
 				ch <- t
 			}
 		},
+	}
+}
+
+func IfAllMatch[T any](s *Stream[T], f func(T) bool, action func(t T)) {
+	s.Run()
+	allMatch := true
+	var data []T
+	for t := range s.data {
+		if !f(t) {
+			allMatch = false
+			go drain(s.data)
+			break
+		}
+		data = append(data, t)
+	}
+	if allMatch {
+		for _, t := range data {
+			action(t)
+		}
 	}
 }

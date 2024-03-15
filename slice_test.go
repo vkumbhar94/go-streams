@@ -111,11 +111,18 @@ func TestAllMatch(t *testing.T) {
 	})
 	assert.True(t, allMatch)
 }
+func TestFalseAllMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	allMatch := AllMatch(stream, func(i int) bool {
+		return i < 3
+	})
+	assert.False(t, allMatch)
+}
 
 func TestNotAllMatch(t *testing.T) {
 	stream := New(1, 2, 3, 4, 5)
-	allMatch := AllMatch(stream, func(i int) bool {
-		return i < 5
+	allMatch := NotAllMatch(stream, func(i int) bool {
+		return i < 10
 	})
 	assert.False(t, allMatch)
 }
@@ -213,4 +220,28 @@ func TestSkip(t *testing.T) {
 	stream := New(1, 2, 3, 4, 5)
 	collected := Collect(Skip(stream, 2))
 	assert.Equal(t, []int{3, 4, 5}, collected)
+}
+
+func TestIfAllMatch(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	IfAllMatch(stream,
+		func(i int) bool {
+			return i < 10
+		},
+		func(t int) {
+			fmt.Println(t)
+		},
+	)
+}
+
+func TestIfAllMatchNegativeCase(t *testing.T) {
+	stream := New(1, 2, 3, 4, 5)
+	IfAllMatch(stream,
+		func(i int) bool {
+			return i > 10
+		},
+		func(t int) {
+			fmt.Println(t)
+		},
+	)
 }
