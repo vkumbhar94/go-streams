@@ -259,3 +259,8 @@ func TestMSortedDesc(t *testing.T) {
 		{"abc", 2},
 	}))
 }
+
+func TestMethodReverse(t *testing.T) {
+	collected := New([]int{1, 2, 3, 4, 5}...).Reverse().Collect()
+	assert.Equal(t, []int{5, 4, 3, 2, 1}, collected)
+}

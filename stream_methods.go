@@ -2,8 +2,6 @@ package streams
 
 import (
 	"sync/atomic"
-
-	"golang.org/x/exp/constraints"
 )
 
 func (s *Stream[T]) Filter(filter FilterFun[T]) *Stream[T] {
@@ -286,23 +284,20 @@ func (s *Stream[T]) Count() (cnt int64) {
 	return
 }
 
-type NumberStream[T constraints.Integer | constraints.Float] struct {
-	Stream[T]
-}
-
-func ToNumberStream[T constraints.Integer | constraints.Float](s *Stream[T]) *NumberStream[T] {
-	return &NumberStream[T]{
-		Stream: Stream[T]{
-			data: s.data,
-			run:  s.run,
-			ran:  atomic.Bool{},
+func (s *Stream[T]) Reverse() *Stream[T] {
+	ch := make(chan T)
+	return &Stream[T]{
+		data: ch,
+		run: func() {
+			s.Run()
+			defer close(ch)
+			var data []T
+			for t := range s.data {
+				data = append(data, t)
+			}
+			for i := len(data) - 1; i >= 0; i-- {
+				ch <- data[i]
+			}
 		},
 	}
-}
-func (s *NumberStream[T]) Sum() (result T) {
-	s.Run()
-	for t := range s.data {
-		result += t
-	}
-	return result
 }
