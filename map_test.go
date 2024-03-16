@@ -189,9 +189,9 @@ func TestMStreamSCollectToSet(t *testing.T) {
 	collected := CollectToSet(stream)
 	assert.Equal(t,
 		map[MapEntry[string, int64]]struct{}{
-			MapEntry[string, int64]{"abcd", 2}: {},
-			MapEntry[string, int64]{"ijkl", 3}: {},
-			MapEntry[string, int64]{"xyz", 4}:  {},
+			{"abcd", 2}: {},
+			{"ijkl", 3}: {},
+			{"xyz", 4}:  {},
 		},
 		collected)
 }
