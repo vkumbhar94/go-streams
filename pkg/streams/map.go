@@ -38,7 +38,7 @@ func MNew[K comparable, V any](data map[K]V) *Stream[MapEntry[K, V]] {
 	}
 }
 
-func MKeys[K comparable, V any](data map[K]V) *Stream[K] {
+func MNewKeys[K comparable, V any](data map[K]V) *Stream[K] {
 	ch := make(chan K)
 	return &Stream[K]{
 		data: ch,
@@ -53,7 +53,7 @@ func MKeys[K comparable, V any](data map[K]V) *Stream[K] {
 	}
 }
 
-func MValues[K comparable, V any](data map[K]V) *Stream[V] {
+func MNewValues[K comparable, V any](data map[K]V) *Stream[V] {
 	ch := make(chan V)
 	return &Stream[V]{
 		data: ch,

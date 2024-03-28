@@ -87,7 +87,7 @@ func TestMStreamSorted(t *testing.T) {
 }
 
 func TestMStreamKeys(t *testing.T) {
-	stream := MKeys(map[string]int64{
+	stream := MNewKeys(map[string]int64{
 		"abc": 2,
 		"xyz": 4,
 		"ijk": 3,
@@ -97,7 +97,7 @@ func TestMStreamKeys(t *testing.T) {
 }
 
 func TestMStreamValues(t *testing.T) {
-	stream := MValues(map[string]int64{
+	stream := MNewValues(map[string]int64{
 		"abc": 2,
 		"xyz": 4,
 		"ijk": 3,
@@ -161,7 +161,7 @@ func TestMStreamReduceStringKeysToString(t *testing.T) {
 }
 
 func TestMStreamSum(t *testing.T) {
-	stream := MValues(map[string]int64{
+	stream := MNewValues(map[string]int64{
 		"abc": 2,
 		"xyz": 4,
 		"ijk": 3,
@@ -171,7 +171,7 @@ func TestMStreamSum(t *testing.T) {
 }
 
 func TestMStreamCount(t *testing.T) {
-	stream := MValues(map[string]int64{
+	stream := MNewValues(map[string]int64{
 		"abc": 2,
 		"xyz": 4,
 		"ijk": 3,
