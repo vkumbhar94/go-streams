@@ -67,6 +67,7 @@ func main() {
 			),
 	)
 
+	fmt.Println("stream peek start")
 	// from slice example of using streams
 	fmt.Println(
 		streams.ToNumberStream(
@@ -76,8 +77,50 @@ func main() {
 						return i%2 == 0
 					},
 				),
-		).Sum(),
+		).
+			Reverse().
+			Map(
+				func(i int) int {
+					return i * 2
+				},
+			).
+			Skip(1).
+			Limit(3).
+			Filter(func(i int) bool {
+				return i%2 == 0
+			}).
+			Peek(
+				func(i int) {
+					fmt.Println("before", i)
+				},
+			).
+			DropWhile(
+				func(i int) bool {
+					return i < 5
+				},
+			).
+			Peek(
+				func(i int) {
+					fmt.Println("after", i)
+				},
+			).
+			Sum(),
 	)
+	fmt.Println("stream peek end")
+
+	fmt.Println("for each start")
+	// from slice example of using streams
+	streams.ToNumberStream(
+		streams.FromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+			Filter(
+				func(i int) bool {
+					return i%2 == 0
+				},
+			),
+	).ForEach(func(i int) {
+		fmt.Println(i)
+	})
+	fmt.Println("for each end")
 
 	// from map example of using streams
 	fmt.Println(
