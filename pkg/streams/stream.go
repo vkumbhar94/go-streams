@@ -37,6 +37,10 @@ func New[T any](data ...T) *Stream[T] {
 	}
 }
 
+func FromSlice[T any](arr []T) *Stream[T] {
+	return New(arr...)
+}
+
 func (s *Stream[T]) Filter(filter FilterFun[T]) *Stream[T] {
 	ch := make(chan T)
 	return &Stream[T]{

@@ -27,17 +27,68 @@ import (
 )
 
 func main() {
-	result := streams.New(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).
-		Filter(
-			func(i int) bool {
-				return i%2 == 0
+	// var args example of using streams
+	fmt.Println(
+		streams.New(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).
+			Filter(
+				func(i int) bool {
+					return i%2 == 0
+				}).
+			Map(func(i int) int {
+				return i * 2
 			}).
-		Map(func(i int) int {
-			return i * 2
-		}).
-		Limit(3).
-		Collect()
-	fmt.Println(result)
+			Limit(3).
+			Collect(),
+	)
+
+	// from slice example of using streams
+	fmt.Println(
+		streams.FromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+			Filter(
+				func(i int) bool {
+					return i%2 == 0
+				},
+			).
+			Count(),
+	)
+
+	// from slice example of using streams
+	fmt.Println(
+		streams.FromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+			Filter(
+				func(i int) bool {
+					return i%2 == 0
+				},
+			).
+			Reduce(0,
+				func(sum, i int) int {
+					return sum + i
+				},
+			),
+	)
+
+	// from slice example of using streams
+	fmt.Println(
+		streams.ToNumberStream(
+			streams.FromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+				Filter(
+					func(i int) bool {
+						return i%2 == 0
+					},
+				),
+		).Sum(),
+	)
+
+	// from map example of using streams
+	fmt.Println(
+		streams.FromMap(map[int]string{1: "one", 2: "two", 3: "three"}).
+			Filter(
+				func(e streams.MapEntry[int, string]) bool {
+					return e.V == "two"
+				},
+			).
+			Collect(),
+	)
 }
 
 ```
